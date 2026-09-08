@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build balanced Golden Valley characters with the official 25-point stat budget.">
+  <title>Golden Valley Character Calculator</title>
+  <link rel="icon" type="image/png" href="GV%20Assets/logo_icon.png">
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #080705;
+      --panel: #14110d;
+      --cream: #fff5ce;
+      --gold: #f6a800;
+      --pink: #ff174d;
+      --purple: #8a4d00;
+      --cyan: #21dff3;
+      --muted: #c3b9a1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--cream);
+      font-family: "Courier New", ui-monospace, monospace;
+      background: var(--ink) url("GV%20Assets/background.png") center / cover fixed no-repeat;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      z-index: 1;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(#08070566, #080705e8);
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      width: min(1120px, calc(100% - 2rem));
+      margin: auto;
+      padding: 5.5rem 0 4rem;
+    }
+
+    header {
+      display: grid;
+      justify-items: center;
+      width: min(680px, 100%);
+      margin: 0 auto 2rem;
+      text-align: center;
+    }
+
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .gv-logo {
+      display: block;
+      width: 616px;
+      aspect-ratio: 77 / 24;
+      object-fit: cover;
+      margin: 0 auto;
+      image-rendering: pixelated;
+    }
+
+    header p:last-child {
+      width: min(590px, 100%);
+      margin: 1.2rem auto 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr);
+      justify-content: center;
+      gap: 1.25rem;
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--gold);
+      border-radius: .2rem;
+      background:
+        radial-gradient(#f6a80012 1px, transparent 1px) 0 0 / 9px 9px,
+        #0d0b09f2;
+      box-shadow: 0 0 0 3px #090705, 0 0 0 4px #6b4308, 0 18px 50px #000b;
+    }
+
+    .panel::after {
+      content: "◆";
+      position: absolute;
+      right: .35rem;
+      bottom: .2rem;
+      color: var(--gold);
+      font-size: .65rem;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.15rem 1.25rem;
+      border-bottom: 1px solid #9b640d;
+      background: linear-gradient(90deg, #f6a8001c, transparent);
+    }
+
+    h2 { margin: 0; color: var(--gold); font-size: 1.05rem; letter-spacing: .12em; text-transform: uppercase; }
+
+    .budget {
+      flex: none;
+      color: var(--gold);
+      font-weight: 900;
+    }
+
+    .calculator { padding: 1.25rem; }
+
+    label { font-weight: 800; }
+
+    #character-name {
+      width: 100%;
+      margin: .5rem 0 1.35rem;
+      padding: .9rem 1rem;
+      border: 2px solid #ffffff24;
+      border-radius: .75rem;
+      outline: 0;
+      color: var(--cream);
+      background: #ffffff0b;
+      font: inherit;
+    }
+
+    #character-name:focus { border-color: var(--gold); }
+
+    #character-class {
+      width: 100%;
+      margin: .5rem 0;
+      padding: .9rem 1rem;
+      border: 2px solid #ffffff24;
+      border-radius: .75rem;
+      outline: 0;
+      color: var(--cream);
+      background: #120e08;
+      font: inherit;
+    }
+
+    #character-class:focus { border-color: var(--gold); }
+
+    .class-bonus {
+      min-height: 1.2rem;
+      margin: 0 0 1.35rem;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .soul-picker {
+      margin: 0 0 1.35rem;
+      padding: 0;
+      border: 0;
+    }
+
+    .soul-picker legend { margin-bottom: .5rem; font-weight: 800; }
+
+    .soul-variants { display: flex; gap: .5rem; margin-bottom: .7rem; }
+
+    .soul-variants label {
+      padding: .35rem .8rem;
+      border: 1px solid #6b4308;
+      border-radius: .15rem;
+      background: #2a1d0c;
+    }
+
+    .soul-variants label:has(input:checked), .soul-option:has(input:checked) {
+      border-color: var(--gold);
+      background: #f6a80024;
+      box-shadow: 0 0 0 2px #f6a80055;
+    }
+
+    .soul-picker input { position: absolute; opacity: 0; }
+    .soul-picker label:has(input:focus-visible) { outline: 3px solid var(--cyan); outline-offset: 2px; }
+
+    .soul-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+      gap: .55rem;
+    }
+
+    .soul-option {
+      display: grid;
+      grid-template-columns: 3.75rem 1fr;
+      align-items: center;
+      min-height: 4rem;
+      padding: .25rem .45rem;
+      border: 1px solid #38280f;
+      border-radius: .15rem;
+      color: var(--muted);
+      background: #0008;
+      font-size: .7rem;
+      line-height: 1.25;
+    }
+
+    .soul-option img, #preview-soul {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    body.soul-cursor { cursor: var(--soul-cursor), auto; }
+    body.soul-cursor :is(a, button, input, select, label) { cursor: var(--soul-cursor-click), pointer; }
+
+    .stat-list { display: grid; gap: .7rem; }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 3.25rem 1fr auto;
+      align-items: center;
+      gap: .8rem;
+      padding: .78rem;
+      border: 1px solid #5d3b0b;
+      border-radius: .15rem;
+      background: #0008;
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      justify-self: center;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    .stat-code {
+      color: var(--stat-color, var(--gold));
+      font-size: 1.05rem;
+      font-weight: 950;
+    }
+
+    .stat-row:nth-child(1), .rule:nth-child(1) { --stat-color: #ff174d; }
+    .stat-row:nth-child(2), .rule:nth-child(2) { --stat-color: #ffb000; }
+    .stat-row:nth-child(3), .rule:nth-child(3) { --stat-color: #d14cff; }
+    .stat-row:nth-child(4), .rule:nth-child(4) { --stat-color: #21dff3; }
+    .stat-row:nth-child(5), .rule:nth-child(5) { --stat-color: #42e85f; }
+
+    .stat-name { color: var(--muted); font-size: .82rem; }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: 2.5rem 3rem 2.5rem;
+      gap: .25rem;
+    }
+
+    button, input[type="number"] {
+      min-height: 2.5rem;
+      border: 1px solid #6b4308;
+      border-radius: .15rem;
+      color: var(--cream);
+      font: inherit;
+      font-weight: 900;
+    }
+
+    button {
+      cursor: pointer;
+      background: #2a1d0c;
+      transition: transform .15s, background .15s;
+    }
+
+    button:hover { color: var(--ink); background: var(--gold); transform: translateY(-1px); }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+
+    input[type="number"] {
+      width: 3rem;
+      text-align: center;
+      color: var(--gold);
+      background: #120e08;
+      appearance: textfield;
+    }
+
+    input::-webkit-inner-spin-button { appearance: none; }
+
+    .meter {
+      height: .65rem;
+      margin-top: 1.2rem;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #ffffff14;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--pink), var(--gold));
+      transition: width .2s;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: .65rem 0 1.2rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .summary strong { color: var(--cream); }
+    .summary .ready { color: var(--cyan); }
+
+    .actions { display: flex; gap: .65rem; }
+
+    .actions button { flex: 1; padding: .7rem 1rem; }
+    .actions .primary { color: var(--ink); background: var(--gold); }
+    .actions .primary:hover { background: #ffda6d; }
+
+    .rules { padding: 1.25rem; }
+    .rules > p { margin: 0 0 1rem; color: var(--muted); line-height: 1.5; }
+
+    .rule-list { display: grid; gap: .7rem; }
+
+    .rule {
+      padding: .9rem 1rem;
+      border: 1px solid #38280f;
+      border-left: 4px solid var(--stat-color);
+      border-radius: .15rem;
+      background: #0008;
+    }
+
+    .rule strong { color: var(--stat-color); }
+    .rule p { margin: .25rem 0 0; color: #d8cce0; font-size: .88rem; line-height: 1.42; }
+
+    .character-card {
+      display: grid;
+      grid-template-columns: 5rem 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid #8e5c0d;
+      border-radius: .15rem;
+      background: linear-gradient(135deg, #f6a80018, #0008);
+    }
+
+    .portrait {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1;
+      border: 3px solid var(--gold);
+      border-radius: 50%;
+      color: var(--ink);
+      background: var(--gold);
+      font-size: 2rem;
+      font-weight: 950;
+    }
+
+    .character-card small { color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+    .character-card h3 { overflow-wrap: anywhere; margin: .2rem 0 .55rem; font-size: 1.35rem; }
+    .mini-stats { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .mini-stats span { padding: .2rem .45rem; border-radius: .35rem; background: #0005; font-size: .72rem; }
+
+    @media (max-width: 760px) {
+      main { padding-top: 5.5rem; }
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 615px) {
+      .gv-logo { width: 308px; }
+    }
+
+    @media (max-width: 420px) {
+      main { width: min(100% - 1rem, 1120px); }
+      .calculator, .rules { padding: .85rem; }
+      .stat-row { grid-template-columns: 2.6rem 1fr auto; gap: .45rem; padding: .65rem; }
+      .stat-name { display: none; }
+      .stepper { grid-template-columns: 2.3rem 2.8rem 2.3rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1 class="sr-only">Golden Valley</h1>
+      <img class="gv-logo" src="GV%20Assets/logo_small.png" alt="" aria-hidden="true">
+      <p>Create a new soul for the Valley. Spend exactly 25 points across five stats, with at least 1 point in each.</p>
+    </header>
+
+    <div class="layout">
+      <section class="panel" aria-labelledby="builder-title">
+        <div class="panel-title">
+          <h2 id="builder-title">Character builder</h2>
+          <span class="budget"><span id="total">25</span> / 25</span>
+        </div>
+
+        <div class="calculator">
+          <label for="character-name">Character name</label>
+          <input id="character-name" maxlength="32" placeholder="The Wanderer" autocomplete="off">
+
+          <label for="character-class">Class</label>
+          <select id="character-class">
+            <option value="">Choose a class</option>
+            <option>Fighter</option>
+            <option>Healer</option>
+            <option>Guardian</option>
+            <option>Caster</option>
+            <option>Cheerleader</option>
+          </select>
+          <p class="class-bonus" id="class-bonus">Class bonuses are added after the 25-point build.</p>
+
+          <fieldset class="soul-picker">
+            <legend>Soul</legend>
+            <div class="soul-variants" aria-label="Soul variant">
+              <label><input type="radio" name="soul-variant" value="H" checked> H</label>
+              <label><input type="radio" name="soul-variant" value="M"> M</label>
+            </div>
+            <div class="soul-list" id="soul-list"></div>
+          </fieldset>
+
+          <div class="stat-list" id="stat-list"></div>
+
+          <div class="meter" role="progressbar" aria-label="Points spent" aria-valuemin="5" aria-valuemax="25" aria-valuenow="25">
+            <div class="meter-fill" id="meter-fill"></div>
+          </div>
+          <div class="summary" aria-live="polite">
+            <span id="remaining">All points assigned</span>
+            <strong class="ready" id="status">Character ready</strong>
+          </div>
+
+          <div class="actions">
+            <button type="button" id="reset">Reset</button>
+            <button type="button" class="primary" id="randomize">Randomize build</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel" aria-labelledby="rules-title">
+        <div class="panel-title"><h2 id="rules-title">Field guide</h2></div>
+        <div class="rules">
+          <div class="character-card" aria-label="Character preview">
+            <div class="portrait">
+              <span id="initial">?</span>
+              <img id="preview-soul" alt="" hidden>
+            </div>
+            <div>
+              <small id="preview-class">Choose a class</small>
+              <h3 id="preview-name">Unnamed character</h3>
+              <div class="mini-stats" id="mini-stats"></div>
+            </div>
+          </div>
+          <p>Each point shapes how the character performs in Golden Valley.</p>
+          <div class="rule-list" id="rule-list"></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const STAT_TOTAL = 25;
+    const MIN_STAT = 1;
+    const definitions = [
+      ["HP", "Hit Points", "Each point grants 10 max HP. Revive health starts at 15% for HP 1, plus 1 percentage point per extra HP."],
+      ["AT", "Attack", "Strengthens FIGHT actions and expands the perfect zones in fight minigames."],
+      ["MG", "Magic", "Boosts skills and spells, increases TP gain, and reduces TP lost when taking damage."],
+      ["DF", "Defense", "Reduces damage from any source. Max overhealth starts at 20% of max HP for DF 1, plus 1 percentage point per extra DF."],
+      ["EN", "Endurance", "Increases invincibility frames. Downed regeneration starts at 10% of max HP per turn for EN 1, plus 1 percentage point per extra EN."]
+    ];
+    const classes = {
+      Fighter: { role: "Pure Damage Dealer, Main DPS", bonuses: { AT: 6, MG: 2 } },
+      Healer: { role: "Heals/Buffs, Main Support", bonuses: { MG: 6, DF: 2, HP: 2 } },
+      Guardian: { role: "Frontline Damage Absorb, Sub DPS", bonuses: { DF: 6, AT: 2, HP: 5 } },
+      Caster: { role: "Skill Abuser/Team Buffs/Enemy Debuffs, Sub Support", bonuses: { MG: 4, EN: 4 } },
+      Cheerleader: { role: "Hard to Stay Dead/Versatile, Sub Support/DPS", bonuses: { EN: 4, MG: 2, AT: 2, HP: 1 } }
+    };
+    const souls = [
+      ["bravery_recklessness", "Bravery / Recklessness", "orange"],
+      ["enthusiasm_intensity", "Enthusiasm / Intensity", "pink"],
+      ["freedom_control", "Freedom / Control", "red"],
+      ["insight_manipulation", "Insight / Manipulation", "teal"],
+      ["integrity_ruthlessness", "Integrity / Ruthlessness", "blue"],
+      ["justice_vengeance", "Justice / Vengeance", "yellow"],
+      ["kindness_sacrifice", "Kindness / Sacrifice", "green"],
+      ["loyalty_obsession", "Loyalty / Obsession", "violet"],
+      ["mindfulness_prejudice", "Mindfulness / Prejudice", "azure"],
+      ["patience_carelessness", "Patience / Carelessness", "cyan"],
+      ["perseverance_stubbornness", "Perseverance / Stubbornness", "purple"],
+      ["protectiveness_subjugation", "Protectiveness / Subjugation", "lime"]
+    ];
+    let stats = definitions.map(() => 5);
+    let selectedSoul = "";
+
+    const sum = values => values.reduce((total, value) => total + value, 0);
+    const isValid = values => values.length === definitions.length && values.every(value => Number.isInteger(value) && value >= MIN_STAT) && sum(values) === STAT_TOTAL;
+    const applyClassBonuses = (values, className) => definitions.map(([code], index) => values[index] + (classes[className]?.bonuses[code] ?? 0));
+    const calculateDerivedStats = ([hp, , , df, en]) => {
+      const maxHp = hp * 10;
+      const downedRegenPercent = 9 + en;
+      const downedRegen = Math.round(maxHp * downedRegenPercent / 100);
+      const revivePercent = 14 + hp;
+      const overhealthPercent = 19 + df;
+      return {
+        maxHp, downedRegenPercent, downedRegen, downedTurns: Math.ceil(maxHp / 2 / downedRegen),
+        revivePercent, reviveHp: Math.round(maxHp * revivePercent / 100),
+        overhealthPercent, overhealth: Math.round(maxHp * overhealthPercent / 100)
+      };
+    };
+
+    const classSelect = document.querySelector("#character-class");
+    const statList = document.querySelector("#stat-list");
+    const soulList = document.querySelector("#soul-list");
+    const ruleList = document.querySelector("#rule-list");
+
+    const makeElement = (tag, className, text) => {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text) element.textContent = text;
+      return element;
+    };
+
+    souls.forEach(([id, label]) => {
+      const option = makeElement("label", "soul-option");
+      const input = makeElement("input");
+      const image = makeElement("img");
+      Object.assign(input, { type: "radio", name: "soul", value: id });
+      image.src = `GV Assets/soul_H_${id}.png`;
+      image.alt = "";
+      image.dataset.soulImage = id;
+      option.append(input, image, makeElement("span", "", label));
+      soulList.append(option);
+    });
+
+    definitions.forEach(([code, name, description], index) => {
+      const row = makeElement("div", "stat-row");
+      const icon = makeElement("img", "stat-icon");
+      icon.src = `GV Assets/icon_${code}.png`;
+      icon.alt = "";
+      const label = makeElement("div");
+      label.append(makeElement("div", "stat-code", code), makeElement("div", "stat-name", name));
+
+      const stepper = makeElement("div", "stepper");
+      const decrease = makeElement("button", "", "−");
+      const input = makeElement("input");
+      const increase = makeElement("button", "", "+");
+      Object.assign(decrease, { type: "button", ariaLabel: `Decrease ${name}` });
+      Object.assign(input, { type: "number", inputMode: "numeric", min: 1, max: 21, value: 5, ariaLabel: `${name} points` });
+      Object.assign(increase, { type: "button", ariaLabel: `Increase ${name}` });
+      decrease.dataset.index = increase.dataset.index = input.dataset.input = index;
+      decrease.dataset.step = -1;
+      increase.dataset.step = 1;
+      stepper.append(decrease, input, increase);
+      row.append(icon, label, stepper);
+      statList.append(row);
+
+      const rule = makeElement("article", "rule");
+      rule.append(makeElement("strong", "", `${code} · ${name}`), makeElement("p", "", description));
+      ruleList.append(rule);
+    });
+    function render() {
+      const total = sum(stats);
+      const left = STAT_TOTAL - total;
+      const selectedClass = classes[classSelect.value];
+      const bonuses = selectedClass?.bonuses ?? {};
+      const effectiveStats = applyClassBonuses(stats, classSelect.value);
+      const valid = isValid(stats) && Boolean(selectedClass) && Boolean(selectedSoul);
+      const derived = calculateDerivedStats(effectiveStats);
+      let status = "Choose a class";
+      if (selectedClass) status = "Choose a soul";
+      if (selectedClass && selectedSoul) status = valid ? "Character ready" : "Keep building";
+      const pointsLeft = `${left} point${left === 1 ? "" : "s"} left`;
+      document.querySelectorAll("[data-input]").forEach((input, index) => input.value = stats[index]);
+      document.querySelector("#total").textContent = total;
+      document.querySelector("#remaining").textContent = left ? pointsLeft : "All points assigned";
+      document.querySelector("#status").textContent = status;
+      document.querySelector("#status").classList.toggle("ready", valid);
+      document.querySelector("#meter-fill").style.width = `${total / STAT_TOTAL * 100}%`;
+      document.querySelector(".meter").setAttribute("aria-valuenow", total);
+      document.querySelector("#class-bonus").textContent = selectedClass
+        ? `Bonuses: ${Object.entries(bonuses).map(([code, value]) => `+${value} ${code}`).join(", ")}. Added after the 25-point build.`
+        : "Class bonuses are added after the 25-point build.";
+      document.querySelector("#preview-class").textContent = selectedClass ? `${classSelect.value} · ${selectedClass.role}` : "Choose a class";
+      const previewStats = [
+        ...definitions.map(([code], index) => `${code} ${effectiveStats[index]}`),
+        `Max HP ${derived.maxHp}`,
+        `Downed ${derived.downedRegen} HP/turn · ${derived.downedTurns} turns (${derived.downedRegenPercent}%)`,
+        `Revive ${derived.reviveHp} HP (${derived.revivePercent}%)`,
+        `Overhealth +${derived.overhealth} HP · ${derived.maxHp + derived.overhealth} max (${derived.overhealthPercent}%)`
+      ];
+      document.querySelector("#mini-stats").replaceChildren(...previewStats.map(text => makeElement("span", "", text)));
+    }
+
+    const soulVariant = () => document.querySelector('[name="soul-variant"]:checked').value;
+
+    function updateCursor() {
+      const soul = souls.find(([id]) => id === selectedSoul);
+      document.body.classList.toggle("soul-cursor", Boolean(soul));
+      if (!soul) return;
+      const cursor = `GV%20Assets/cursor_${soulVariant()}_${soul[2]}_`;
+      document.body.style.setProperty("--soul-cursor", `url("${cursor}1.png") 1 1`);
+      document.body.style.setProperty("--soul-cursor-click", `url("${cursor}2.png") 1 1`);
+    }
+
+    function renderSoul() {
+      const variant = soulVariant();
+      document.querySelectorAll("[data-soul-image]").forEach(image => {
+        image.src = `GV Assets/soul_${variant}_${image.dataset.soulImage}.png`;
+      });
+      const soul = souls.find(([id]) => id === selectedSoul);
+      const previewSoul = document.querySelector("#preview-soul");
+      document.querySelector("#initial").hidden = Boolean(soul);
+      previewSoul.hidden = !soul;
+      if (soul) {
+        previewSoul.src = `GV Assets/soul_${variant}_${soul[0]}.png`;
+        previewSoul.alt = `${soul[1]} soul`;
+      }
+      updateCursor();
+      render();
+    }
+
+    function setStat(index, requested) {
+      const current = stats[index];
+      const room = STAT_TOTAL - sum(stats);
+      stats[index] = Math.max(MIN_STAT, Math.min(21, current + room, Math.round(requested)));
+      render();
+    }
+
+    statList.addEventListener("click", event => {
+      const button = event.target.closest("button[data-index]");
+      if (button) setStat(Number(button.dataset.index), stats[button.dataset.index] + Number(button.dataset.step));
+    });
+
+    statList.addEventListener("change", event => {
+      if (event.target.matches("[data-input]")) setStat(Number(event.target.dataset.input), Number(event.target.value));
+    });
+
+    classSelect.addEventListener("change", render);
+
+    document.querySelector(".soul-picker").addEventListener("change", event => {
+      if (event.target.name === "soul") selectedSoul = event.target.value;
+      renderSoul();
+    });
+
+    document.querySelector("#character-name").addEventListener("input", event => {
+      const name = event.target.value.trim();
+      document.querySelector("#preview-name").textContent = name || "Unnamed character";
+      document.querySelector("#initial").textContent = name ? name[0].toUpperCase() : "?";
+    });
+
+
+    document.querySelector("#reset").addEventListener("click", () => {
+      stats = definitions.map(() => 5);
+      selectedSoul = "";
+      classSelect.value = "";
+      document.querySelectorAll('[name="soul"]').forEach(input => input.checked = false);
+      document.querySelector('[name="soul-variant"][value="H"]').checked = true;
+      renderSoul();
+    });
+
+    document.querySelector("#randomize").addEventListener("click", () => {
+      stats = definitions.map(() => MIN_STAT);
+      for (let point = definitions.length; point < STAT_TOTAL; point++) stats[Math.floor(Math.random() * stats.length)]++;
+      render();
+    });
+
+    console.assert(isValid([5, 5, 5, 5, 5]) && !isValid([0, 5, 5, 5, 10]), "Golden Valley stat validation failed");
+    const expectedClassStats = {
+      Fighter: "5,11,7,5,5", Healer: "7,5,11,7,5", Guardian: "10,7,5,11,5",
+      Caster: "5,5,9,5,9", Cheerleader: "6,7,7,5,9"
+    };
+    console.assert(Object.entries(expectedClassStats).every(([name, expected]) => applyClassBonuses([5, 5, 5, 5, 5], name).join() === expected), "Golden Valley class bonuses failed");
+    console.assert(Object.values(calculateDerivedStats([5, 2, 12, 10, 6])).join() === "50,15,8,4,19,10,29,15", "Golden Valley derived stats failed");
+    renderSoul();
+  </script>
+</body>
+</html>
