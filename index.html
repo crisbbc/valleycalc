@@ -73,6 +73,7 @@
               <small id="preview-class">Choose a class</small>
               <h3 id="preview-name">Unnamed character</h3>
               <div class="mini-stats" id="mini-stats"></div>
+              <div class="action-preview" id="action-preview" aria-label="Class actions"></div>
             </div>
           </div>
           <button type="button" class="download-card primary" id="download-card">Download card as PNG</button>
@@ -101,6 +102,7 @@
       Caster: { role: "TP Abuser, Team Buffs/Enemy Debuffs, Sub Support", bonuses: { MG: 4, DF: 2, EN: 2 }, actions: ["BUFF", "SKILL / SPELL", "DEFEND", "ITEMS"] },
       Cheerleader: { role: "Versatile and Quick Revives, Sub Support/DPS", bonuses: { EN: 4, MG: 2, AT: 2, HP: 2 }, actions: ["FIGHT", "SKILL / SPELL", "TAUNT", "ITEMS"] }
     };
+    const availableActionAssets = new Set(["defend", "fight", "guard", "heal", "items", "skill", "spell"]);
     const soulGroups = {
       Versatile: "You move with the stream, your Will floating past without hassle.",
       Durable: "You held your ground and kept pushing your Will onwards, even if slowly.",
@@ -152,6 +154,11 @@
       if (text) element.textContent = text;
       return element;
     };
+    const actionAssets = actions => actions.flatMap(action => {
+      if (action === "SKILL / SPELL") return [["skill", "SKILL"], ["spell", "SPELL"]];
+      const asset = action.toLowerCase();
+      return [[availableActionAssets.has(asset) ? asset : "empty", action]];
+    });
 
     const cardFileName = name => {
       const safeName = name.trim().replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-").replace(/[. ]+$/g, "").slice(0, 80) || "character";
@@ -183,10 +190,11 @@
         targets[index].style.cssText = Array.from(styles).filter(property => !property.startsWith("--")).map(property => `${property}:${styles.getPropertyValue(property)};`).join("");
       });
 
-      const previewSoul = document.querySelector("#preview-soul");
-      if (!previewSoul.hidden) {
-        if (!previewSoul.complete) await previewSoul.decode();
-        clone.querySelector("#preview-soul").src = imageDataUrl(previewSoul);
+      for (const [index, source] of sources.entries()) {
+        if (source instanceof HTMLImageElement && !source.hidden) {
+          if (!source.complete) await source.decode();
+          targets[index].src = imageDataUrl(source);
+        }
       }
 
       const bounds = card.getBoundingClientRect();
@@ -282,9 +290,23 @@
         ? `Bonuses: ${Object.entries(bonuses).map(([code, value]) => `+${value} ${code}`).join(", ")}. Added after the 25-point build.`
         : "Class bonuses are added after the 25-point build.";
       document.querySelector("#preview-class").textContent = selectedClass ? `${classSelect.value} · ${selectedClass.role}` : "Choose a class";
+      const previewActions = actionAssets(selectedClass?.actions ?? []).map(([asset, label]) => {
+        const icon = makeElement("span", "action-icon");
+        const images = [1, 2].map(variant => {
+          const image = makeElement("img");
+          image.src = `GV Assets/act_${asset}_${variant}.png`;
+          image.alt = "";
+          return image;
+        });
+        icon.setAttribute("role", "img");
+        icon.setAttribute("aria-label", label);
+        icon.title = label;
+        icon.append(...images);
+        return icon;
+      });
+      document.querySelector("#action-preview").replaceChildren(...previewActions);
       const previewStats = [
         ...definitions.map(([code], index) => `${code} ${effectiveStats[index]}`),
-        ...(selectedClass ? [`ACTs ${selectedClass.actions.join(" · ")}`] : []),
         ...(selectedSoulData ? [`SOUL · The ${selectedSoulData[3]} — “${soulGroups[selectedSoulData[3]]}”`] : []),
         `Max HP ${derived.maxHp}`,
         `Downed ${derived.downedRegen} HP/turn · ${derived.downedTurns} turns (${derived.downedRegenPercent}%)`,
@@ -403,6 +425,7 @@
       Attentive: ["kindness_sacrifice", "loyalty_obsession", "protectiveness_subjugation"]
     };
     console.assert(Object.entries(expectedClassDetails).every(([name, [role, actions]]) => classes[name].role === role && classes[name].actions.join() === actions), "Golden Valley class details failed");
+    console.assert(actionAssets(["FIGHT", "SKILL / SPELL", "SMITE"]).map(([asset, label]) => `${asset}:${label}`).join() === "fight:FIGHT,skill:SKILL,spell:SPELL,empty:SMITE", "Golden Valley action assets failed");
     console.assert(souls.length === 12 && souls.find(([id]) => id === "freedom_control")[1] === "Will / Control" && Object.entries(expectedSoulGroups).every(([group, ids]) => ids.every(id => souls.some(([soulId, , , soulGroup]) => soulId === id && soulGroup === group))), "Golden Valley soul groups failed");
     console.assert(Object.entries(expectedClassStats).every(([name, expected]) => applyClassBonuses([5, 5, 5, 5, 5], name).join() === expected), "Golden Valley class bonuses failed");
     console.assert(Object.values(calculateDerivedStats([5, 2, 12, 10, 6])).join() === "50,15,8,4,19,10,29,15", "Golden Valley derived stats failed");

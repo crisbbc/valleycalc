@@ -582,6 +582,36 @@ input::-webkit-inner-spin-button {
   flex-wrap: wrap;
   gap: 0.35rem;
 }
+.action-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+.action-preview:empty {
+  display: none;
+}
+.action-icon,
+.action-icon img {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+.action-icon img {
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.action-icon img:nth-child(2) {
+  display: none;
+}
+@media (hover: hover) {
+  .action-icon:hover img:first-child {
+    display: none;
+  }
+  .action-icon:hover img:nth-child(2) {
+    display: block;
+  }
+}
 .mini-stats span {
   padding: 0.2rem 0.45rem;
   border: 1px solid #44170e;
