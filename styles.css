@@ -489,14 +489,20 @@ input::-webkit-inner-spin-button {
   flex: 1;
   padding: 0.7rem 1rem;
 }
-.actions .primary {
+.actions .primary,
+.download-card {
   border-color: var(--amber);
   color: #170704;
   background: var(--gold);
   box-shadow: inset 0 0 0 2px #ff9b5d;
 }
-
-.actions .primary:hover {
+.download-card {
+  width: 100%;
+  margin: 0 0 1rem;
+  padding: 0.7rem 1rem;
+}
+.actions .primary:hover,
+.download-card:hover {
   color: #050303;
   background: var(--amber);
 }
