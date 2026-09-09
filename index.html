@@ -174,7 +174,7 @@
       const targets = [clone, ...clone.querySelectorAll("*")];
       sources.forEach((source, index) => {
         const styles = getComputedStyle(source);
-        targets[index].style.cssText = Array.from(styles).filter(property => !property.startsWith("--") && property !== "cursor").map(property => `${property}:${styles.getPropertyValue(property)};`).join("");
+        targets[index].style.cssText = Array.from(styles).filter(property => !property.startsWith("--")).map(property => `${property}:${styles.getPropertyValue(property)};`).join("");
       });
 
       const previewSoul = document.querySelector("#preview-soul");
@@ -188,13 +188,7 @@
       const height = Math.ceil(bounds.height);
       Object.assign(clone.style, { width: `${width}px`, height: `${height}px`, margin: "0", boxSizing: "border-box" });
       const markup = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">${new XMLSerializer().serializeToString(clone)}</div></foreignObject></svg>`;
-      const svgUrl = URL.createObjectURL(new Blob([markup], { type: "image/svg+xml;charset=utf-8" }));
-      let rendered;
-      try {
-        rendered = await loadImage(svgUrl);
-      } finally {
-        URL.revokeObjectURL(svgUrl);
-      }
+      const rendered = await loadImage(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`);
 
       const canvas = document.createElement("canvas");
       const scale = 2;
