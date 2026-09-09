@@ -174,7 +174,7 @@
       const targets = [clone, ...clone.querySelectorAll("*")];
       sources.forEach((source, index) => {
         const styles = getComputedStyle(source);
-        targets[index].style.cssText = Array.from(styles).filter(property => !property.startsWith("--")).map(property => `${property}:${styles.getPropertyValue(property)};`).join("");
+        targets[index].style.cssText = Array.from(styles).filter(property => !property.startsWith("--") && property !== "cursor").map(property => `${property}:${styles.getPropertyValue(property)};`).join("");
       });
 
       const previewSoul = document.querySelector("#preview-soul");
