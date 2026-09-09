@@ -1,1 +1,3 @@
 rules/
+.pi/
+__pycache__/

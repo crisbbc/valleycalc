@@ -95,25 +95,31 @@
       ["EN", "Endurance", "Increases invincibility frames. Downed regeneration starts at 10% of max HP per turn for EN 1, plus 1 percentage point per extra EN."]
     ];
     const classes = {
-      Fighter: { role: "Pure Damage Dealer, Main DPS", bonuses: { AT: 6, MG: 2 } },
-      Healer: { role: "Heals/Buffs, Main Support", bonuses: { MG: 6, DF: 2, HP: 2 } },
-      Guardian: { role: "Frontline Damage Absorb, Sub DPS", bonuses: { DF: 6, AT: 2, HP: 5 } },
-      Caster: { role: "Skill Abuser/Team Buffs/Enemy Debuffs, Sub Support", bonuses: { MG: 4, EN: 4 } },
-      Cheerleader: { role: "Hard to Stay Dead/Versatile, Sub Support/DPS", bonuses: { EN: 4, MG: 2, AT: 2, HP: 1 } }
+      Fighter: { role: "Damage Dealer, Main DPS", bonuses: { AT: 6, MG: 2 }, actions: ["SMITE", "SKILL / SPELL", "DEFEND", "ITEMS"] },
+      Healer: { role: "Primarily Heals, Main Support", bonuses: { MG: 6, DF: 2, HP: 3 }, actions: ["HEAL", "SKILL / SPELL", "DEFEND", "ITEMS"] },
+      Guardian: { role: "Frontline Damage Absorb/Sub DPS", bonuses: { DF: 6, AT: 2, HP: 5 }, actions: ["FIGHT", "SKILL / SPELL", "GUARD", "ITEMS"] },
+      Caster: { role: "TP Abuser, Team Buffs/Enemy Debuffs, Sub Support", bonuses: { MG: 4, DF: 2, EN: 2 }, actions: ["BUFF", "SKILL / SPELL", "DEFEND", "ITEMS"] },
+      Cheerleader: { role: "Versatile and Quick Revives, Sub Support/DPS", bonuses: { EN: 4, MG: 2, AT: 2, HP: 2 }, actions: ["FIGHT", "SKILL / SPELL", "TAUNT", "ITEMS"] }
+    };
+    const soulGroups = {
+      Versatile: "You move with the stream, your Will floating past without hassle.",
+      Durable: "You held your ground and kept pushing your Will onwards, even if slowly.",
+      Passionate: "You took beating after beating, and still refused to change your Will.",
+      Attentive: "You put yourself in harm's way so others could join in on your Will."
     };
     const souls = [
-      ["bravery_recklessness", "Bravery / Recklessness", "orange"],
-      ["enthusiasm_intensity", "Enthusiasm / Intensity", "pink"],
-      ["freedom_control", "Freedom / Control", "red"],
-      ["insight_manipulation", "Insight / Manipulation", "teal"],
-      ["integrity_ruthlessness", "Integrity / Ruthlessness", "blue"],
-      ["justice_vengeance", "Justice / Vengeance", "yellow"],
-      ["kindness_sacrifice", "Kindness / Sacrifice", "green"],
-      ["loyalty_obsession", "Loyalty / Obsession", "violet"],
-      ["mindfulness_prejudice", "Mindfulness / Prejudice", "azure"],
-      ["patience_carelessness", "Patience / Carelessness", "cyan"],
-      ["perseverance_stubbornness", "Perseverance / Stubbornness", "purple"],
-      ["protectiveness_subjugation", "Protectiveness / Subjugation", "lime"]
+      ["bravery_recklessness", "Bravery / Recklessness", "orange", "Passionate"],
+      ["enthusiasm_intensity", "Enthusiasm / Intensity", "pink", "Versatile"],
+      ["freedom_control", "Will / Control", "red", "Durable"],
+      ["insight_manipulation", "Insight / Manipulation", "teal", "Versatile"],
+      ["integrity_ruthlessness", "Integrity / Ruthlessness", "blue", "Durable"],
+      ["justice_vengeance", "Justice / Vengeance", "yellow", "Passionate"],
+      ["kindness_sacrifice", "Kindness / Sacrifice", "green", "Attentive"],
+      ["loyalty_obsession", "Loyalty / Obsession", "violet", "Attentive"],
+      ["mindfulness_prejudice", "Mindfulness / Prejudice", "azure", "Passionate"],
+      ["patience_carelessness", "Patience / Carelessness", "cyan", "Versatile"],
+      ["perseverance_stubbornness", "Perseverance / Stubbornness", "purple", "Durable"],
+      ["protectiveness_subjugation", "Protectiveness / Subjugation", "lime", "Attentive"]
     ];
     let stats = definitions.map(() => 5);
     let selectedSoul = "";
@@ -256,6 +262,7 @@
       const total = sum(stats);
       const left = STAT_TOTAL - total;
       const selectedClass = classes[classSelect.value];
+      const selectedSoulData = souls.find(([id]) => id === selectedSoul);
       const bonuses = selectedClass?.bonuses ?? {};
       const effectiveStats = applyClassBonuses(stats, classSelect.value);
       const valid = isValid(stats) && Boolean(selectedClass) && Boolean(selectedSoul);
@@ -277,6 +284,8 @@
       document.querySelector("#preview-class").textContent = selectedClass ? `${classSelect.value} · ${selectedClass.role}` : "Choose a class";
       const previewStats = [
         ...definitions.map(([code], index) => `${code} ${effectiveStats[index]}`),
+        ...(selectedClass ? [`ACTs ${selectedClass.actions.join(" · ")}`] : []),
+        ...(selectedSoulData ? [`SOUL · The ${selectedSoulData[3]} — “${soulGroups[selectedSoulData[3]]}”`] : []),
         `Max HP ${derived.maxHp}`,
         `Downed ${derived.downedRegen} HP/turn · ${derived.downedTurns} turns (${derived.downedRegenPercent}%)`,
         `Revive ${derived.reviveHp} HP (${derived.revivePercent}%)`,
@@ -377,9 +386,24 @@
     console.assert(isValid([5, 5, 5, 5, 5]) && !isValid([0, 5, 5, 5, 10]), "Golden Valley stat validation failed");
     console.assert(cardFileName("The Wanderer") === "The Wanderer-card.png" && cardFileName("") === "character-card.png", "Character card filename failed");
     const expectedClassStats = {
-      Fighter: "5,11,7,5,5", Healer: "7,5,11,7,5", Guardian: "10,7,5,11,5",
-      Caster: "5,5,9,5,9", Cheerleader: "6,7,7,5,9"
+      Fighter: "5,11,7,5,5", Healer: "8,5,11,7,5", Guardian: "10,7,5,11,5",
+      Caster: "5,5,9,7,7", Cheerleader: "7,7,7,5,9"
     };
+    const expectedClassDetails = {
+      Fighter: ["Damage Dealer, Main DPS", "SMITE,SKILL / SPELL,DEFEND,ITEMS"],
+      Healer: ["Primarily Heals, Main Support", "HEAL,SKILL / SPELL,DEFEND,ITEMS"],
+      Guardian: ["Frontline Damage Absorb/Sub DPS", "FIGHT,SKILL / SPELL,GUARD,ITEMS"],
+      Caster: ["TP Abuser, Team Buffs/Enemy Debuffs, Sub Support", "BUFF,SKILL / SPELL,DEFEND,ITEMS"],
+      Cheerleader: ["Versatile and Quick Revives, Sub Support/DPS", "FIGHT,SKILL / SPELL,TAUNT,ITEMS"]
+    };
+    const expectedSoulGroups = {
+      Versatile: ["enthusiasm_intensity", "insight_manipulation", "patience_carelessness"],
+      Durable: ["freedom_control", "integrity_ruthlessness", "perseverance_stubbornness"],
+      Passionate: ["bravery_recklessness", "justice_vengeance", "mindfulness_prejudice"],
+      Attentive: ["kindness_sacrifice", "loyalty_obsession", "protectiveness_subjugation"]
+    };
+    console.assert(Object.entries(expectedClassDetails).every(([name, [role, actions]]) => classes[name].role === role && classes[name].actions.join() === actions), "Golden Valley class details failed");
+    console.assert(souls.length === 12 && souls.find(([id]) => id === "freedom_control")[1] === "Will / Control" && Object.entries(expectedSoulGroups).every(([group, ids]) => ids.every(id => souls.some(([soulId, , , soulGroup]) => soulId === id && soulGroup === group))), "Golden Valley soul groups failed");
     console.assert(Object.entries(expectedClassStats).every(([name, expected]) => applyClassBonuses([5, 5, 5, 5, 5], name).join() === expected), "Golden Valley class bonuses failed");
     console.assert(Object.values(calculateDerivedStats([5, 2, 12, 10, 6])).join() === "50,15,8,4,19,10,29,15", "Golden Valley derived stats failed");
     renderSoul();
