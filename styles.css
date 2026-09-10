@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap");
+
 :root {
   color-scheme: dark;
   --ink: #050303;
@@ -19,7 +21,7 @@ body {
   min-height: 100vh;
   margin: 0;
   color: var(--cream);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: system-ui, sans-serif;
   background:
     var(--ink) url("GV%20Assets/background.png") center / cover fixed no-repeat;
 }
@@ -34,9 +36,8 @@ body {
   background: #080504e8;
   text-align: center;
   font:
-    700 0.76rem / 1 Georgia,
-    "Times New Roman",
-    serif;
+    700 0.76rem / 1 "Pixelify Sans",
+    monospace;
   text-transform: uppercase;
   letter-spacing: 0.18em;
   box-shadow: 0 3px 0 #000;
@@ -379,6 +380,14 @@ input[type="number"] {
   color: var(--cream);
   font: inherit;
   font-weight: 700;
+}
+
+h2,
+.budget,
+.stat-code,
+button,
+.mini-stats {
+  font-family: "Pixelify Sans", monospace;
 }
 
 button {
