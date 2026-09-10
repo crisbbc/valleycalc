@@ -1,3 +1,5 @@
 rules/
 .pi/
 __pycache__/
+# Local Pi runtime state
+.atl/

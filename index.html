@@ -14,14 +14,14 @@
     <header>
       <h1 class="sr-only">Golden Valley</h1>
       <img class="gv-logo" src="GV%20Assets/logo_small.png" alt="" aria-hidden="true">
-      <p>Create a new soul for the Valley. Spend exactly 25 points across five stats, with at least 1 point in each.</p>
+      <p id="builder-intro">Create a new soul for the Valley. Spend exactly 25 points across five stats, with at least 1 point in each.</p>
     </header>
 
     <div class="layout">
       <section class="panel" aria-labelledby="builder-title">
         <div class="panel-title">
           <h2 id="builder-title">Character builder</h2>
-          <span class="budget"><span id="total">25</span> / 25</span>
+          <span class="budget">25 / 25</span>
         </div>
 
         <div class="calculator">
@@ -102,7 +102,7 @@
       Caster: { role: "TP Abuser, Team Buffs/Enemy Debuffs, Sub Support", bonuses: { MG: 4, DF: 2, EN: 2 }, actions: ["BUFF", "SKILL / SPELL", "DEFEND", "ITEMS"] },
       Cheerleader: { role: "Versatile and Quick Revives, Sub Support/DPS", bonuses: { EN: 4, MG: 2, AT: 2, HP: 2 }, actions: ["FIGHT", "SKILL / SPELL", "TAUNT", "ITEMS"] }
     };
-    const availableActionAssets = new Set(["defend", "fight", "guard", "heal", "items", "skill", "spell"]);
+    const availableActionAssets = new Set(["defend", "fight", "guard", "heal", "items", "skill", "spell", "taunt"]);
     const soulGroups = {
       Versatile: "You move with the stream, your Will floating past without hassle.",
       Durable: "You held your ground and kept pushing your Will onwards, even if slowly.",
@@ -159,6 +159,37 @@
       const asset = action.toLowerCase();
       return [[availableActionAssets.has(asset) ? asset : "empty", action]];
     });
+    const glyphCharacters = new Set("0123456789+-");
+    const glyphColors = new Set(["w", "y", "r"]);
+    const glyphAsset = (character, color = "w") => glyphCharacters.has(character) && glyphColors.has(color)
+      ? `GV Assets/HP_${character}_${color}.png`
+      : "";
+    const textGlyphAsset = (text, index, color) => "+-".includes(text[index]) && text.length > 1 && !/\d/.test(text[index + 1])
+      ? ""
+      : glyphAsset(text[index], color);
+    const glyphText = (text, color = "w", readable = true) => {
+      const value = String(text);
+      const wrapper = makeElement("span", "glyph-text");
+      const visual = makeElement("span", "glyph-visual");
+      visual.setAttribute("aria-hidden", "true");
+      if (readable) wrapper.append(makeElement("span", "sr-only", value));
+      for (const [index, character] of [...value].entries()) {
+        const source = textGlyphAsset(value, index, color);
+        if (!source) {
+          visual.append(document.createTextNode(character));
+          continue;
+        }
+        const image = makeElement("img", "glyph");
+        image.src = source;
+        image.alt = "";
+        image.draggable = false;
+        visual.append(image);
+      }
+      wrapper.append(visual);
+      return wrapper;
+    };
+    const renderGlyphText = (element, text, color = "w", readable = true) => element.replaceChildren(glyphText(text, color, readable));
+    const syncNumberInput = input => renderGlyphText(input.nextElementSibling, input.value, "y", false);
 
     const cardFileName = name => {
       const safeName = name.trim().replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-").replace(/[. ]+$/g, "").slice(0, 80) || "character";
@@ -249,21 +280,28 @@
       label.append(makeElement("div", "stat-code", code), makeElement("div", "stat-name", name));
 
       const stepper = makeElement("div", "stepper");
-      const decrease = makeElement("button", "", "−");
+      const decrease = makeElement("button");
+      const inputShell = makeElement("span", "number-input");
       const input = makeElement("input");
-      const increase = makeElement("button", "", "+");
+      const inputGlyphs = makeElement("span", "number-input-glyphs");
+      const increase = makeElement("button");
       Object.assign(decrease, { type: "button", ariaLabel: `Decrease ${name}` });
       Object.assign(input, { type: "number", inputMode: "numeric", min: 1, max: 21, value: 5, ariaLabel: `${name} points` });
       Object.assign(increase, { type: "button", ariaLabel: `Increase ${name}` });
       decrease.dataset.index = increase.dataset.index = input.dataset.input = index;
       decrease.dataset.step = -1;
       increase.dataset.step = 1;
-      stepper.append(decrease, input, increase);
+      decrease.append(glyphText("-", "r", false));
+      increase.append(glyphText("+", "y", false));
+      inputShell.append(input, inputGlyphs);
+      stepper.append(decrease, inputShell, increase);
       row.append(icon, label, stepper);
       statList.append(row);
 
       const rule = makeElement("article", "rule");
-      rule.append(makeElement("strong", "", `${code} · ${name}`), makeElement("p", "", description));
+      const ruleText = makeElement("p");
+      renderGlyphText(ruleText, description);
+      rule.append(makeElement("strong", "", `${code} · ${name}`), ruleText);
       ruleList.append(rule);
     });
     function render() {
@@ -279,16 +317,23 @@
       if (selectedClass) status = "Choose a soul";
       if (selectedClass && selectedSoul) status = valid ? "Character ready" : "Keep building";
       const pointsLeft = `${left} point${left === 1 ? "" : "s"} left`;
-      document.querySelectorAll("[data-input]").forEach((input, index) => input.value = stats[index]);
-      document.querySelector("#total").textContent = total;
-      document.querySelector("#remaining").textContent = left ? pointsLeft : "All points assigned";
+      document.querySelectorAll("[data-input]").forEach((input, index) => {
+        input.value = stats[index];
+        syncNumberInput(input);
+      });
+      renderGlyphText(document.querySelector(".budget"), `${total} / ${STAT_TOTAL}`, "y");
+      renderGlyphText(document.querySelector("#remaining"), left ? pointsLeft : "All points assigned");
       document.querySelector("#status").textContent = status;
       document.querySelector("#status").classList.toggle("ready", valid);
       document.querySelector("#meter-fill").style.width = `${total / STAT_TOTAL * 100}%`;
       document.querySelector(".meter").setAttribute("aria-valuenow", total);
-      document.querySelector("#class-bonus").textContent = selectedClass
-        ? `Bonuses: ${Object.entries(bonuses).map(([code, value]) => `+${value} ${code}`).join(", ")}. Added after the 25-point build.`
-        : "Class bonuses are added after the 25-point build.";
+      renderGlyphText(
+        document.querySelector("#class-bonus"),
+        selectedClass
+          ? `Bonuses: ${Object.entries(bonuses).map(([code, value]) => `+${value} ${code}`).join(", ")}. Added after the 25-point build.`
+          : "Class bonuses are added after the 25-point build.",
+        "y"
+      );
       document.querySelector("#preview-class").textContent = selectedClass ? `${classSelect.value} · ${selectedClass.role}` : "Choose a class";
       const previewActions = actionAssets(selectedClass?.actions ?? []).map(([asset, label]) => {
         const icon = makeElement("span", "action-icon");
@@ -313,7 +358,11 @@
         `Revive ${derived.reviveHp} HP (${derived.revivePercent}%)`,
         `Overhealth +${derived.overhealth} HP · ${derived.maxHp + derived.overhealth} max (${derived.overhealthPercent}%)`
       ];
-      document.querySelector("#mini-stats").replaceChildren(...previewStats.map(text => makeElement("span", "", text)));
+      document.querySelector("#mini-stats").replaceChildren(...previewStats.map(stat => {
+        const item = makeElement("span");
+        renderGlyphText(item, stat);
+        return item;
+      }));
     }
 
     const soulVariant = () => selectedVariant;
@@ -351,6 +400,10 @@
     statList.addEventListener("click", event => {
       const button = event.target.closest("button[data-index]");
       if (button) setStat(Number(button.dataset.index), stats[button.dataset.index] + Number(button.dataset.step));
+    });
+
+    statList.addEventListener("input", event => {
+      if (event.target.matches("[data-input]")) syncNumberInput(event.target);
     });
 
     statList.addEventListener("change", event => {
@@ -425,10 +478,16 @@
       Attentive: ["kindness_sacrifice", "loyalty_obsession", "protectiveness_subjugation"]
     };
     console.assert(Object.entries(expectedClassDetails).every(([name, [role, actions]]) => classes[name].role === role && classes[name].actions.join() === actions), "Golden Valley class details failed");
-    console.assert(actionAssets(["FIGHT", "SKILL / SPELL", "SMITE"]).map(([asset, label]) => `${asset}:${label}`).join() === "fight:FIGHT,skill:SKILL,spell:SPELL,empty:SMITE", "Golden Valley action assets failed");
+    console.assert(actionAssets(["FIGHT", "SKILL / SPELL", "TAUNT", "SMITE"]).map(([asset, label]) => `${asset}:${label}`).join() === "fight:FIGHT,skill:SKILL,spell:SPELL,taunt:TAUNT,empty:SMITE", "Golden Valley action assets failed");
+    console.assert(glyphAsset("0") === "GV Assets/HP_0_w.png" && glyphAsset("+", "y") === "GV Assets/HP_+_y.png" && glyphAsset("-", "r") === "GV Assets/HP_-_r.png" && glyphAsset("x") === "", "Golden Valley glyph mapping failed");
+    const glyphCheck = glyphText("-10", "r");
+    const hyphenCheck = glyphText("25-point");
+    console.assert(glyphCheck.querySelectorAll("img").length === 3 && glyphCheck.querySelector(".sr-only").textContent === "-10" && hyphenCheck.querySelectorAll("img").length === 2 && hyphenCheck.querySelector(".glyph-visual").textContent === "-point", "Golden Valley glyph rendering failed");
     console.assert(souls.length === 12 && souls.find(([id]) => id === "freedom_control")[1] === "Will / Control" && Object.entries(expectedSoulGroups).every(([group, ids]) => ids.every(id => souls.some(([soulId, , , soulGroup]) => soulId === id && soulGroup === group))), "Golden Valley soul groups failed");
     console.assert(Object.entries(expectedClassStats).every(([name, expected]) => applyClassBonuses([5, 5, 5, 5, 5], name).join() === expected), "Golden Valley class bonuses failed");
     console.assert(Object.values(calculateDerivedStats([5, 2, 12, 10, 6])).join() === "50,15,8,4,19,10,29,15", "Golden Valley derived stats failed");
+    const intro = document.querySelector("#builder-intro");
+    renderGlyphText(intro, intro.textContent);
     renderSoul();
   </script>
 </body>
