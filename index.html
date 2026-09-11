@@ -188,17 +188,26 @@
       const visual = makeElement("span", "glyph-visual");
       visual.setAttribute("aria-hidden", "true");
       if (readable) wrapper.append(makeElement("span", "sr-only", value));
-      for (const [index, character] of [...value].entries()) {
-        const source = textGlyphAsset(value, index, color);
-        if (!source) {
-          visual.append(document.createTextNode(character));
+      for (const token of value.split(/(\s+)/)) {
+        if (!token) continue;
+        if (/^\s+$/.test(token)) {
+          visual.append(document.createTextNode(token));
           continue;
         }
-        const image = makeElement("img", "glyph");
-        image.src = source;
-        image.alt = "";
-        image.draggable = false;
-        visual.append(image);
+        const run = makeElement("span", "glyph-run");
+        for (const [index, character] of [...token].entries()) {
+          const source = textGlyphAsset(token, index, color);
+          if (!source) {
+            run.append(document.createTextNode(character));
+            continue;
+          }
+          const image = makeElement("img", "glyph");
+          image.src = source;
+          image.alt = "";
+          image.draggable = false;
+          run.append(image);
+        }
+        visual.append(run);
       }
       wrapper.append(visual);
       return wrapper;
@@ -284,7 +293,7 @@
       }
 
       const hpVisual = card.querySelector(".card-hp .glyph-visual");
-      const slash = [...hpVisual.childNodes].find(node => node.nodeType === Node.TEXT_NODE);
+      const slash = [...hpVisual.querySelectorAll(".glyph-run")].flatMap(run => [...run.childNodes]).find(node => node.nodeType === Node.TEXT_NODE && node.textContent === "/");
       if (slash) {
         const range = document.createRange();
         range.selectNode(slash);
@@ -567,7 +576,8 @@
     console.assert(glyphAsset("0") === "GV Assets/HP_0_w.png" && glyphAsset("+", "y") === "GV Assets/HP_+_y.png" && glyphAsset("-", "r") === "GV Assets/HP_-_r.png" && glyphAsset("x") === "", "Golden Valley glyph mapping failed");
     const glyphCheck = glyphText("-10", "r");
     const hyphenCheck = glyphText("25-point");
-    console.assert(glyphCheck.querySelectorAll("img").length === 3 && glyphCheck.querySelector(".sr-only").textContent === "-10" && hyphenCheck.querySelectorAll("img").length === 2 && hyphenCheck.querySelector(".glyph-visual").textContent === "-point", "Golden Valley glyph rendering failed");
+    const hpCheck = glyphText("50/50").querySelector(".glyph-visual");
+    console.assert(glyphCheck.querySelectorAll("img").length === 3 && glyphCheck.querySelector(".sr-only").textContent === "-10" && hyphenCheck.querySelectorAll("img").length === 2 && hyphenCheck.querySelector(".glyph-visual").textContent === "-point" && hpCheck.children.length === 1 && hpCheck.textContent === "/", "Golden Valley glyph rendering failed");
     console.assert(souls.length === 12 && souls.find(([id]) => id === "freedom_control")[1] === "Will / Control" && Object.entries(expectedSoulGroups).every(([group, ids]) => ids.every(id => souls.some(([soulId, , , soulGroup]) => soulId === id && soulGroup === group))), "Golden Valley soul groups failed");
     console.assert(Object.entries(expectedClassStats).every(([name, expected]) => applyClassBonuses([5, 5, 5, 5, 5], name).join() === expected), "Golden Valley class bonuses failed");
     console.assert(Object.values(calculateDerivedStats([5, 2, 12, 10, 6])).join() === "50,15,8,4,19,10,29,15", "Golden Valley derived stats failed");
