@@ -97,6 +97,56 @@ header {
   margin: 0 auto;
   image-rendering: pixelated;
   filter: drop-shadow(0 4px 0 #000) drop-shadow(0 0 12px #ff704455);
+  animation:
+    logo-glitch 6.7s infinite steps(1, end),
+    logo-signal 4.9s infinite steps(1, end);
+  transform-origin: center;
+}
+
+@keyframes logo-glitch {
+  0%, 9%, 13%, 44%, 48%, 71%, 77%, 100% {
+    clip-path: inset(0);
+    transform: none;
+  }
+  10%, 45%, 72% {
+    clip-path: inset(8% 0 62%);
+    transform: translate(-12px, 3px) skewX(8deg) scaleX(1.04);
+  }
+  11%, 46%, 74% {
+    clip-path: inset(58% 0 10%);
+    transform: translate(11px, -3px) skewX(-7deg) scaleX(0.97);
+  }
+  12%, 47%, 76% {
+    clip-path: inset(30% 0 35%);
+    transform: translate(-7px, 2px) skewX(4deg) scaleX(1.07);
+  }
+  73% {
+    clip-path: inset(0);
+    transform: translate(8px, -2px) skewX(-5deg);
+  }
+  75% {
+    clip-path: inset(42% 0 22%);
+    transform: translate(-14px, 3px) scaleX(1.09);
+  }
+}
+
+@keyframes logo-signal {
+  0%, 18%, 21%, 57%, 61%, 86%, 89%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 4px 0 #000) drop-shadow(0 0 12px #ff704455);
+  }
+  19%, 58%, 87% {
+    opacity: 0.72;
+    filter: brightness(1.7) contrast(1.35) drop-shadow(-9px 0 var(--pink)) drop-shadow(9px 0 var(--cyan));
+  }
+  20%, 60%, 88% {
+    opacity: 1;
+    filter: brightness(1.25) contrast(1.5) drop-shadow(7px 0 var(--pink)) drop-shadow(-7px 0 var(--cyan));
+  }
+  59% {
+    opacity: 0.45;
+    filter: brightness(2) contrast(1.5) drop-shadow(-12px 0 var(--pink)) drop-shadow(12px 0 var(--cyan));
+  }
 }
 
 header p:last-child {
@@ -532,6 +582,16 @@ input::-webkit-inner-spin-button {
   background: var(--amber);
 }
 
+.download-card:disabled,
+.download-card:disabled:hover {
+  cursor: not-allowed;
+  opacity: 0.45;
+  border-color: var(--rust);
+  color: var(--muted);
+  background: #160a07;
+  box-shadow: none;
+}
+
 .rules {
   padding: 1.25rem;
 }
@@ -600,6 +660,16 @@ input::-webkit-inner-spin-button {
   position: relative;
   z-index: 1;
   text-shadow: 2px 2px #003333;
+}
+
+.missingno-sprite {
+  position: relative;
+  z-index: 1;
+  width: 24%;
+  image-rendering: pixelated;
+}
+.missingno-sprite[hidden] {
+  display: none;
 }
 
 .card-layer {
@@ -675,6 +745,46 @@ input::-webkit-inner-spin-button {
   overflow-wrap: anywhere;
   margin: 0.2rem 0 0.55rem;
   font-size: 1.35rem;
+}
+
+#preview-name.unnamed {
+  color: var(--amber);
+  font-size: 0;
+  animation: missing-name-glitch 2.7s infinite steps(1, end);
+}
+
+#preview-name.unnamed::before {
+  content: "Unnamed character";
+  font: 1.35rem / normal monospace;
+  animation: missing-name-garble 2.3s infinite steps(1, end);
+}
+
+@keyframes missing-name-glitch {
+  0%, 81%, 87%, 100% {
+    transform: none;
+    text-shadow: none;
+  }
+  82%, 85% {
+    transform: translate(-4px, 1px) skewX(8deg);
+    text-shadow: 5px 0 var(--pink), -5px 0 var(--cyan);
+  }
+  83%, 86% {
+    transform: translate(5px, -1px) skewX(-6deg);
+    text-shadow: -4px 0 var(--pink), 4px 0 var(--cyan);
+  }
+  84% {
+    transform: scaleX(1.08);
+    text-shadow: 7px 0 var(--pink), -7px 0 var(--cyan);
+  }
+}
+
+@keyframes missing-name-garble {
+  0%, 24%, 28%, 69%, 76%, 100% { content: "Unnamed character"; }
+  25%, 72% { content: "UNN@M3D CH@R#CTER"; }
+  26%, 74% { content: "U_N?M/D C#4R!CTER"; }
+  27%, 70% { content: "UNN4M3D CH4RACT3R"; }
+  71%, 75% { content: "UNN?MED CHAR@CTER"; }
+  73% { content: "#NNAMED CH4R?CT3R"; }
 }
 .mini-stats {
   display: inline;
@@ -770,6 +880,11 @@ input::-webkit-inner-spin-button {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .gv-logo,
+  #preview-name.unnamed,
+  #preview-name.unnamed::before {
+    animation: none;
+  }
   .meter-fill {
     transition: none;
   }

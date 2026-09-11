@@ -67,7 +67,8 @@
           <div class="character-card" aria-label="Character preview">
             <div class="portrait">
               <span class="card-backdrop" aria-hidden="true"></span>
-              <span id="initial">?</span>
+              <img class="missingno-sprite" id="missingno-sprite" src="GV%20Assets/missingno.png" alt="" aria-hidden="true">
+              <span id="initial" hidden></span>
               <img class="card-layer" src="GV%20Assets/card_base.png" alt="">
               <img class="card-layer" id="preview-class-art" src="GV%20Assets/card_class_fighter.png" alt="" hidden>
               <img class="card-layer" src="GV%20Assets/card_class_overlay.png" alt="">
@@ -85,12 +86,12 @@
             </div>
             <div>
               <small id="preview-class">Choose a class</small>
-              <h3 id="preview-name">Unnamed character</h3>
+              <h3 id="preview-name" class="unnamed">Unnamed character</h3>
               <div class="mini-stats" id="mini-stats"></div>
               <div class="action-preview" id="action-preview" aria-label="Class actions"></div>
             </div>
           </div>
-          <button type="button" class="download-card primary" id="download-card">Download card as PNG</button>
+          <button type="button" class="download-card primary" id="download-card" disabled title="Enter a character name to download">Download card as PNG</button>
           <p>Each point shapes how the character performs in Golden Valley.</p>
           <div class="rule-list" id="rule-list"></div>
         </div>
@@ -211,6 +212,8 @@
     };
 
     async function downloadCard() {
+      const name = document.querySelector("#character-name").value.trim();
+      if (!name) return;
       const preview = document.querySelector(".character-card");
       const card = preview.querySelector(".portrait");
       await document.fonts.ready;
@@ -319,7 +322,7 @@
       const downloadUrl = URL.createObjectURL(png);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = cardFileName(document.querySelector("#character-name").value);
+      link.download = cardFileName(name);
       link.click();
       setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
     }
@@ -495,8 +498,17 @@
 
     document.querySelector("#character-name").addEventListener("input", event => {
       const name = event.target.value.trim();
-      document.querySelector("#preview-name").textContent = name || "Unnamed character";
-      document.querySelector("#initial").textContent = name ? name[0].toUpperCase() : "?";
+      const unnamed = !name;
+      const previewName = document.querySelector("#preview-name");
+      const initial = document.querySelector("#initial");
+      const downloadButton = document.querySelector("#download-card");
+      previewName.textContent = name || "Unnamed character";
+      previewName.classList.toggle("unnamed", unnamed);
+      initial.textContent = name ? name[0].toUpperCase() : "";
+      initial.hidden = unnamed;
+      document.querySelector("#missingno-sprite").hidden = !unnamed;
+      downloadButton.disabled = unnamed;
+      downloadButton.title = unnamed ? "Enter a character name to download" : "";
     });
 
 
@@ -512,7 +524,7 @@
         console.error(error);
         button.textContent = "Download failed — retry";
       } finally {
-        button.disabled = false;
+        button.disabled = !document.querySelector("#character-name").value.trim();
       }
     });
 
