@@ -61,6 +61,30 @@ body::before {
   background: linear-gradient(#05030324, #050303d9);
 }
 
+body::after {
+  content: "";
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(#0000 50%, #0003 50%) 0 0 / 100% 4px,
+    linear-gradient(90deg, #f001, #0f01, #00f1) 0 0 / 3px 100%;
+  box-shadow: inset 0 0 8rem #0008;
+}
+
+.crt-cursor {
+  display: none;
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
 main {
   position: relative;
   z-index: 2;
@@ -104,19 +128,32 @@ header {
 }
 
 @keyframes logo-glitch {
-  0%, 9%, 13%, 44%, 48%, 71%, 77%, 100% {
+  0%,
+  9%,
+  13%,
+  44%,
+  48%,
+  71%,
+  77%,
+  100% {
     clip-path: inset(0);
     transform: none;
   }
-  10%, 45%, 72% {
+  10%,
+  45%,
+  72% {
     clip-path: inset(8% 0 62%);
     transform: translate(-12px, 3px) skewX(8deg) scaleX(1.04);
   }
-  11%, 46%, 74% {
+  11%,
+  46%,
+  74% {
     clip-path: inset(58% 0 10%);
     transform: translate(11px, -3px) skewX(-7deg) scaleX(0.97);
   }
-  12%, 47%, 76% {
+  12%,
+  47%,
+  76% {
     clip-path: inset(30% 0 35%);
     transform: translate(-7px, 2px) skewX(4deg) scaleX(1.07);
   }
@@ -131,21 +168,35 @@ header {
 }
 
 @keyframes logo-signal {
-  0%, 18%, 21%, 57%, 61%, 86%, 89%, 100% {
+  0%,
+  18%,
+  21%,
+  57%,
+  61%,
+  86%,
+  89%,
+  100% {
     opacity: 1;
     filter: drop-shadow(0 4px 0 #000) drop-shadow(0 0 12px #ff704455);
   }
-  19%, 58%, 87% {
+  19%,
+  58%,
+  87% {
     opacity: 0.72;
-    filter: brightness(1.7) contrast(1.35) drop-shadow(-9px 0 var(--pink)) drop-shadow(9px 0 var(--cyan));
+    filter: brightness(1.7) contrast(1.35) drop-shadow(-9px 0 var(--pink))
+      drop-shadow(9px 0 var(--cyan));
   }
-  20%, 60%, 88% {
+  20%,
+  60%,
+  88% {
     opacity: 1;
-    filter: brightness(1.25) contrast(1.5) drop-shadow(7px 0 var(--pink)) drop-shadow(-7px 0 var(--cyan));
+    filter: brightness(1.25) contrast(1.5) drop-shadow(7px 0 var(--pink))
+      drop-shadow(-7px 0 var(--cyan));
   }
   59% {
     opacity: 0.45;
-    filter: brightness(2) contrast(1.5) drop-shadow(-12px 0 var(--pink)) drop-shadow(12px 0 var(--cyan));
+    filter: brightness(2) contrast(1.5) drop-shadow(-12px 0 var(--pink))
+      drop-shadow(12px 0 var(--cyan));
   }
 }
 
@@ -343,13 +394,6 @@ label {
   height: 48px;
   object-fit: contain;
   image-rendering: pixelated;
-}
-
-body.soul-cursor {
-  cursor: var(--soul-cursor), auto;
-}
-body.soul-cursor :is(a, button, input, select, label) {
-  cursor: var(--soul-cursor-click), pointer;
 }
 
 .stat-list {
@@ -761,31 +805,63 @@ input::-webkit-inner-spin-button {
 }
 
 @keyframes missing-name-glitch {
-  0%, 81%, 87%, 100% {
+  0%,
+  81%,
+  87%,
+  100% {
     transform: none;
     text-shadow: none;
   }
-  82%, 85% {
+  82%,
+  85% {
     transform: translate(-4px, 1px) skewX(8deg);
-    text-shadow: 5px 0 var(--pink), -5px 0 var(--cyan);
+    text-shadow:
+      5px 0 var(--pink),
+      -5px 0 var(--cyan);
   }
-  83%, 86% {
+  83%,
+  86% {
     transform: translate(5px, -1px) skewX(-6deg);
-    text-shadow: -4px 0 var(--pink), 4px 0 var(--cyan);
+    text-shadow:
+      -4px 0 var(--pink),
+      4px 0 var(--cyan);
   }
   84% {
     transform: scaleX(1.08);
-    text-shadow: 7px 0 var(--pink), -7px 0 var(--cyan);
+    text-shadow:
+      7px 0 var(--pink),
+      -7px 0 var(--cyan);
   }
 }
 
 @keyframes missing-name-garble {
-  0%, 24%, 28%, 69%, 76%, 100% { content: "Unnamed character"; }
-  25%, 72% { content: "UNN@M3D CH@R#CTER"; }
-  26%, 74% { content: "U_N?M/D C#4R!CTER"; }
-  27%, 70% { content: "UNN4M3D CH4RACT3R"; }
-  71%, 75% { content: "UNN?MED CHAR@CTER"; }
-  73% { content: "#NNAMED CH4R?CT3R"; }
+  0%,
+  24%,
+  28%,
+  69%,
+  76%,
+  100% {
+    content: "Unnamed character";
+  }
+  25%,
+  72% {
+    content: "UNN@M3D CH@R#CTER";
+  }
+  26%,
+  74% {
+    content: "U_N?M/D C#4R!CTER";
+  }
+  27%,
+  70% {
+    content: "UNN4M3D CH4RACT3R";
+  }
+  71%,
+  75% {
+    content: "UNN?MED CHAR@CTER";
+  }
+  73% {
+    content: "#NNAMED CH4R?CT3R";
+  }
 }
 .mini-stats {
   display: inline;
@@ -931,5 +1007,27 @@ input::-webkit-inner-spin-button {
   }
   .meter-fill {
     transition: none;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body,
+  body *,
+  .download-card:disabled:hover {
+    cursor: none;
+  }
+  .crt-cursor:not([hidden]) {
+    display: block;
+  }
+}
+
+@media (forced-colors: active) {
+  body,
+  body *,
+  .download-card:disabled:hover {
+    cursor: revert;
+  }
+  .crt-cursor {
+    display: none;
   }
 }
