@@ -590,8 +590,7 @@ input::-webkit-inner-spin-button {
     monospace;
 }
 
-.portrait::before {
-  content: "";
+.card-backdrop {
   position: absolute;
   inset: 9% 23% 11%;
   background: linear-gradient(#004848 0 16%, #007f7f 16% 74%, #005252 74%);
