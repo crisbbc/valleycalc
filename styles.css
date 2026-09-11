@@ -288,17 +288,11 @@ label {
   line-height: 1.25;
 }
 
-.soul-option img,
-#preview-soul {
+.soul-option img {
   width: 48px;
   height: 48px;
   object-fit: contain;
   image-rendering: pixelated;
-}
-
-#preview-soul {
-  width: 60px;
-  height: 60px;
 }
 
 body.soul-cursor {
@@ -572,9 +566,7 @@ input::-webkit-inner-spin-button {
 }
 
 .character-card {
-  display: grid;
-  grid-template-columns: 5rem 1fr;
-  gap: 1rem;
+  display: flow-root;
   margin-bottom: 1rem;
   padding: 1rem;
   border: 1px solid var(--rust);
@@ -584,18 +576,95 @@ input::-webkit-inner-spin-button {
 }
 
 .portrait {
+  position: relative;
+  float: left;
+  width: 220px;
+  margin: 0 1rem 0.75rem 0;
   display: grid;
   place-items: center;
   aspect-ratio: 1;
-  border: 2px solid var(--gold);
-  border-radius: 0;
-  color: var(--amber);
-  background: #050303;
-  box-shadow:
-    inset 0 0 0 2px var(--rust),
-    inset 0 0 14px #000;
-  font-size: 2rem;
-  font-weight: 700;
+  isolation: isolate;
+  color: #fff;
+  font:
+    700 2rem / 1 "Pixelify Sans",
+    monospace;
+}
+
+.portrait::before {
+  content: "";
+  position: absolute;
+  inset: 9% 23% 11%;
+  background: linear-gradient(#004848 0 16%, #007f7f 16% 74%, #005252 74%);
+}
+
+#initial {
+  position: relative;
+  z-index: 1;
+  text-shadow: 2px 2px #003333;
+}
+
+.card-layer {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.card-layer[hidden] {
+  display: none;
+}
+
+.card-hp,
+.card-hp-fill,
+.card-tp-fills,
+.card-level {
+  position: absolute;
+  z-index: 3;
+}
+
+.card-hp {
+  top: 126px;
+  left: 88px;
+  color: #fff;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+.card-hp .glyph-visual {
+  display: flex;
+  align-items: center;
+}
+
+.card-hp-fill {
+  top: 150px;
+  left: 74px;
+  width: 94px;
+  height: 12px;
+  image-rendering: pixelated;
+}
+
+.card-tp-fills {
+  top: 174px;
+  left: 74px;
+  display: flex;
+  gap: 2px;
+}
+
+.card-tp-fills img {
+  width: 22px;
+  height: 12px;
+  image-rendering: pixelated;
+}
+
+.card-level {
+  top: 192px;
+  left: 98px;
+  width: 10px;
+  height: 14px;
+  image-rendering: pixelated;
 }
 
 .character-card small {
@@ -609,9 +678,7 @@ input::-webkit-inner-spin-button {
   font-size: 1.35rem;
 }
 .mini-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+  display: inline;
 }
 .action-preview {
   display: flex;
@@ -644,6 +711,8 @@ input::-webkit-inner-spin-button {
   }
 }
 .mini-stats > span {
+  display: inline-block;
+  margin: 0 0.35rem 0.35rem 0;
   padding: 0.2rem 0.45rem;
   border: 1px solid #44170e;
   border-radius: 0;

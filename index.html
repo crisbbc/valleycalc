@@ -67,7 +67,20 @@
           <div class="character-card" aria-label="Character preview">
             <div class="portrait">
               <span id="initial">?</span>
-              <img id="preview-soul" alt="" hidden>
+              <img class="card-layer" src="GV%20Assets/card_base.png" alt="">
+              <img class="card-layer" id="preview-class-art" src="GV%20Assets/card_class_fighter.png" alt="" hidden>
+              <img class="card-layer" src="GV%20Assets/card_class_overlay.png" alt="">
+              <img class="card-layer" id="preview-soul" alt="" hidden>
+              <img class="card-layer" src="GV%20Assets/card_bars_4_TP.png" alt="">
+              <span class="card-hp" id="card-hp"></span>
+              <img class="card-hp-fill" src="GV%20Assets/HP_bar_full.png" alt="">
+              <span class="card-tp-fills" aria-hidden="true">
+                <img src="GV%20Assets/TP_bar_full.png" alt="">
+                <img src="GV%20Assets/TP_bar_full.png" alt="">
+                <img src="GV%20Assets/TP_bar_full.png" alt="">
+                <img src="GV%20Assets/TP_bar_full.png" alt="">
+              </span>
+              <img class="card-level" src="GV%20Assets/LV_1.png" alt="">
             </div>
             <div>
               <small id="preview-class">Choose a class</small>
@@ -335,6 +348,8 @@
         "y"
       );
       document.querySelector("#preview-class").textContent = selectedClass ? `${classSelect.value} · ${selectedClass.role}` : "Choose a class";
+      document.querySelector("#preview-class-art").hidden = classSelect.value !== "Fighter";
+      renderGlyphText(document.querySelector("#card-hp"), `${derived.maxHp}/${derived.maxHp}`);
       const previewActions = actionAssets(selectedClass?.actions ?? []).map(([asset, label]) => {
         const icon = makeElement("span", "action-icon");
         const images = [1, 2].map(variant => {
@@ -380,10 +395,9 @@
       const variant = soulVariant();
       const soul = souls.find(([id]) => id === selectedSoul);
       const previewSoul = document.querySelector("#preview-soul");
-      document.querySelector("#initial").hidden = Boolean(soul);
       previewSoul.hidden = !soul;
       if (soul) {
-        previewSoul.src = `GV Assets/soul_${variant}_${soul[0]}.png`;
+        previewSoul.src = `GV Assets/card_class_SOUL_${variant}_${soul[2]}.png`;
         previewSoul.alt = `${soul[1]} soul`;
       }
       updateCursor();
