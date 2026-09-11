@@ -211,25 +211,58 @@
     };
 
     async function downloadCard() {
-      const card = document.querySelector(".portrait");
+      const preview = document.querySelector(".character-card");
+      const card = preview.querySelector(".portrait");
       await document.fonts.ready;
-      const bounds = card.getBoundingClientRect();
+      const bounds = preview.getBoundingClientRect();
       const canvas = document.createElement("canvas");
       canvas.width = Math.round(bounds.width);
       canvas.height = Math.round(bounds.height);
       const context = canvas.getContext("2d");
       context.imageSmoothingEnabled = false;
 
+      const background = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+      background.addColorStop(0, "#24100c");
+      background.addColorStop(1, "#050303");
+      context.fillStyle = background;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.strokeStyle = "#7c2b18";
+      context.strokeRect(0.5, 0.5, canvas.width - 1, canvas.height - 1);
+
+      const drawText = (element, text, paddingX = 0, paddingY = 0) => {
+        let rect = element.getBoundingClientRect();
+        if (!paddingX && element.firstChild?.nodeType === Node.TEXT_NODE) {
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          rect = range.getBoundingClientRect();
+        }
+        const styles = getComputedStyle(element);
+        const value = styles.textTransform === "uppercase" ? text.toUpperCase() : text;
+        const maxWidth = rect.width - paddingX * 2;
+        const lineHeight = Number.parseFloat(styles.lineHeight) || Number.parseFloat(styles.fontSize) * 1.2;
+        const lines = [];
+        context.fillStyle = styles.color;
+        context.font = `${styles.fontStyle} ${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+        for (const word of value.split(" ")) {
+          const candidate = lines.length ? `${lines.at(-1)} ${word}` : word;
+          if (!lines.length || context.measureText(candidate).width > maxWidth) lines.push(word);
+          else lines.splice(-1, 1, candidate);
+        }
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        lines.forEach((line, index) => context.fillText(line, rect.left - bounds.left + paddingX, rect.top - bounds.top + paddingY + index * lineHeight));
+      };
+
       const backdrop = card.querySelector(".card-backdrop").getBoundingClientRect();
       const top = backdrop.top - bounds.top;
-      const gradient = context.createLinearGradient(0, top, 0, top + backdrop.height);
-      gradient.addColorStop(0, "#004848");
-      gradient.addColorStop(0.16, "#004848");
-      gradient.addColorStop(0.16, "#007f7f");
-      gradient.addColorStop(0.74, "#007f7f");
-      gradient.addColorStop(0.74, "#005252");
-      gradient.addColorStop(1, "#005252");
-      context.fillStyle = gradient;
+      const cardBackground = context.createLinearGradient(0, top, 0, top + backdrop.height);
+      cardBackground.addColorStop(0, "#004848");
+      cardBackground.addColorStop(0.16, "#004848");
+      cardBackground.addColorStop(0.16, "#007f7f");
+      cardBackground.addColorStop(0.74, "#007f7f");
+      cardBackground.addColorStop(0.74, "#005252");
+      cardBackground.addColorStop(1, "#005252");
+      context.fillStyle = cardBackground;
       context.fillRect(backdrop.left - bounds.left, top, backdrop.width, backdrop.height);
 
       const initial = document.querySelector("#initial");
@@ -259,6 +292,25 @@
         context.textAlign = "left";
         context.textBaseline = "top";
         context.fillText(slash.textContent, slashBounds.left - bounds.left, slashBounds.top - bounds.top);
+      }
+
+      drawText(document.querySelector("#preview-class"), document.querySelector("#preview-class").textContent);
+      drawText(document.querySelector("#preview-name"), document.querySelector("#preview-name").textContent);
+      document.querySelectorAll("#mini-stats > span").forEach(stat => {
+        const rect = stat.getBoundingClientRect();
+        const styles = getComputedStyle(stat);
+        context.fillStyle = styles.backgroundColor;
+        context.fillRect(rect.left - bounds.left, rect.top - bounds.top, rect.width, rect.height);
+        context.strokeStyle = styles.borderColor;
+        context.strokeRect(rect.left - bounds.left + 0.5, rect.top - bounds.top + 0.5, rect.width - 1, rect.height - 1);
+        drawText(stat, stat.querySelector(".sr-only").textContent, Number.parseFloat(styles.paddingLeft), Number.parseFloat(styles.paddingTop));
+      });
+
+      for (const action of preview.querySelectorAll("#action-preview .action-icon")) {
+        const image = action.querySelector("img:nth-child(2)");
+        if (!image.complete) await image.decode();
+        const actionBounds = action.getBoundingClientRect();
+        context.drawImage(image, actionBounds.left - bounds.left, actionBounds.top - bounds.top, actionBounds.width, actionBounds.height);
       }
 
       const png = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
