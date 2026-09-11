@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="ValleyOS terminal">
   <title>ValleyOS</title>
-  <link rel="icon" type="image/png" href="GV%20Assets/logo_icon.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" href="../GV%20Assets/logo_icon.png">
+  <link rel="stylesheet" href="../styles.css">
   <style>
     :root {
       --terminal: #aaa;
@@ -208,7 +208,7 @@
       </div>
     </section>
   </main>
-  <noscript>ValleyOS requires JavaScript. <a href="index.html">Return to Golden Valley</a>.</noscript>
+  <noscript>ValleyOS requires JavaScript. <a href="../">Return to Golden Valley</a>.</noscript>
 
   <script>
     const bootGate = document.querySelector("#boot-gate");
@@ -222,12 +222,12 @@
     const files = {};
 
     async function loadFiles() {
-      const manifest = await fetch("OSF/index.json");
+      const manifest = await fetch("../OSF/index.json");
       if (!manifest.ok) throw new Error(`OSF manifest: ${manifest.status}`);
       const names = await manifest.json();
       if (!Array.isArray(names)) throw new Error("Invalid OSF manifest");
       const entries = await Promise.all(names.map(async name => {
-        const response = await fetch(`OSF/${encodeURIComponent(name)}`);
+        const response = await fetch(`../OSF/${encodeURIComponent(name)}`);
         if (!response.ok) throw new Error(`${name}: ${response.status}`);
         return [name.toUpperCase(), await response.text()];
       }));
@@ -392,7 +392,7 @@
           print(`Sound is ${soundEnabled ? "on" : "off"}. Use SOUND ON or SOUND OFF.`);
         }
       } else if (command === "EXIT") {
-        location.assign("index.html");
+        location.assign("../");
       } else {
         print(`Bad command or file name: ${command}`);
       }
