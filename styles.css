@@ -878,8 +878,8 @@ input::-webkit-inner-spin-button {
 .action-icon,
 .action-icon img {
   display: block;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
 }
 .action-icon img {
   object-fit: contain;
