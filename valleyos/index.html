@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
   <meta name="description" content="ValleyOS terminal">
   <title>ValleyOS</title>
   <link rel="icon" type="image/png" href="../GV%20Assets/logo_icon.png">
@@ -56,16 +57,22 @@
 
     .terminal-screen {
       height: 100%;
-      padding: clamp(1rem, 3vw, 2.25rem);
+      padding:
+        max(clamp(1rem, 3vw, 2.25rem), env(safe-area-inset-top))
+        max(clamp(1rem, 3vw, 2.25rem), env(safe-area-inset-right))
+        max(clamp(1rem, 3vw, 2.25rem), env(safe-area-inset-bottom))
+        max(clamp(1rem, 3vw, 2.25rem), env(safe-area-inset-left));
     }
 
-    .command-input:focus-visible {
-      outline: 2px solid #fff;
-      outline-offset: 4px;
+    .command-input:focus-visible,
+    .terminal-output:focus-visible {
+      outline: 0;
     }
 
     .terminal {
       display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      min-width: 0;
       grid-template-rows: 1fr auto;
       height: 100%;
       min-height: 0;
@@ -73,11 +80,13 @@
 
     .terminal-output {
       min-height: 0;
+      min-width: 0;
       overflow-y: auto;
       scrollbar-color: var(--terminal-dim) var(--terminal-bg);
       white-space: pre-wrap;
       overflow-wrap: anywhere;
     }
+
 
     .terminal-output > div {
       min-height: 1.2em;
@@ -89,6 +98,7 @@
 
     .command-form {
       display: flex;
+      min-width: 0;
       align-items: baseline;
     }
 
@@ -110,13 +120,14 @@
       caret-color: var(--terminal);
     }
 
-    .command-input:focus {
-      outline: 0;
-    }
 
     .uncertain-digit {
       display: inline-block;
       animation: year-glitch 1.1s steps(1) infinite;
+    }
+
+    body.motion-paused .uncertain-digit {
+      animation: none;
     }
 
 
@@ -141,10 +152,10 @@
     <section class="terminal-shell" aria-label="ValleyOS terminal">
       <div class="terminal-screen">
         <div class="terminal" id="terminal" hidden>
-          <div class="terminal-output" id="output" role="log" aria-live="polite" aria-relevant="additions"></div>
+          <div class="terminal-output" id="output" role="log" aria-label="Terminal output" aria-live="polite" aria-relevant="additions" tabindex="0"></div>
           <form class="command-form" id="command-form" autocomplete="off" hidden>
             <label for="command-input">V:\VALLEY&gt;</label>
-            <input class="command-input" id="command-input" aria-label="ValleyOS command" autocapitalize="characters" autocomplete="off" spellcheck="false" disabled>
+            <input class="command-input" id="command-input" name="command" aria-label="ValleyOS command" autocapitalize="characters" autocomplete="off" spellcheck="false" disabled>
           </form>
         </div>
       </div>
@@ -245,14 +256,18 @@
     };
 
     const glitchDigit = () => String(Math.floor(Math.random() * 10));
+    let motionEnabled = !reduceMotion;
+    let glitchTimer;
     const glitch = () => {
+      clearTimeout(glitchTimer);
+      document.body.classList.toggle("motion-paused", !motionEnabled);
+      if (!motionEnabled) return;
       document.querySelectorAll(".uncertain-digit").forEach(digit => {
         digit.textContent = glitchDigit();
       });
-      setTimeout(glitch, reduceMotion ? 1000 : 70 + Math.random() * 430);
+      glitchTimer = setTimeout(glitch, 70 + Math.random() * 430);
     };
     glitch();
-
     async function boot() {
       terminal.hidden = false;
       print("VALLEY SYSTEMS BIOS 3.7");
@@ -266,13 +281,13 @@
       console.assert(memoryLine.textContent === "MEMORY TEST: 640K OK", "ValleyOS memory test failed");
 
       await wait(200);
-      print("CHECKING SOUL DRIVE...");
+      print("CHECKING SOUL DRIVE…");
       await wait(700);
       const driveReady = await filesReady;
 
       for (const [line, delay] of [
-        [`SOUL DRIVE V: ${driveReady ? "READY" : "ERROR"}`, 320],
-        ["LOADING VALLEYOS........", 760],
+        [`SOUL DRIVE V: ${driveReady ? "READY" : "ERROR — reload to retry"}`, 320],
+        ["LOADING VALLEYOS…", 760],
         ["", 180],
         ["ValleyOS Version 1.0", 120],
         ["Copyright (C) 1987 Valley Systems", 120],
@@ -284,7 +299,7 @@
 
       form.hidden = false;
       input.disabled = false;
-      input.focus();
+      if (matchMedia("(hover: hover) and (pointer: fine)").matches) input.focus();
     }
 
     function listDirectory() {
@@ -304,15 +319,15 @@
 
       if (!command) return;
       if (command === "HELP") {
-        print("HELP  DIR  TYPE  CLS  VER  SOUND ON|OFF  EXIT");
+        print("HELP  DIR  TYPE  CLS  VER  SOUND ON|OFF  MOTION ON|OFF  EXIT");
       } else if (command === "DIR") {
         playDriveSound();
         listDirectory();
       } else if (command === "TYPE") {
-        if (!argument) print("Required parameter missing");
+        if (!argument) print("Required parameter missing. Use TYPE <filename>.");
         else {
           playDriveSound();
-          print(files[argument] ?? "File not found");
+          print(files[argument] ?? "File not found. Use DIR to list files.");
         }
       } else if (command === "CLS") {
         output.replaceChildren();
@@ -330,10 +345,18 @@
         } else {
           print(`Sound is ${soundEnabled ? "on" : "off"}. Use SOUND ON or SOUND OFF.`);
         }
+      } else if (command === "MOTION") {
+        if (argument === "ON" || argument === "OFF") {
+          motionEnabled = argument === "ON";
+          glitch();
+          print(`Motion ${argument.toLowerCase()}.`);
+        } else {
+          print(`Motion is ${motionEnabled ? "on" : "off"}. Use MOTION ON or MOTION OFF.`);
+        }
       } else if (command === "EXIT") {
         location.assign("../");
       } else {
-        print(`Bad command or file name: ${command}`);
+        print(`Bad command or file name: ${command}. Use HELP for commands.`);
       }
     }
 

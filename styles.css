@@ -30,7 +30,8 @@ body {
   position: relative;
   z-index: 2;
   margin: 0;
-  padding: 0.55rem 1rem;
+  padding: 0.55rem max(1rem, env(safe-area-inset-right)) 0.55rem
+    max(1rem, env(safe-area-inset-left));
   border-bottom: 2px solid var(--rust);
   color: var(--amber);
   background: #080504e8;
@@ -94,6 +95,7 @@ main {
 }
 
 header {
+  overflow-x: clip;
   display: grid;
   justify-items: center;
   width: min(680px, 100%);
@@ -111,6 +113,21 @@ header {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 10000;
+  top: max(1rem, env(safe-area-inset-top));
+  left: max(1rem, env(safe-area-inset-left));
+  padding: 0.7rem 1rem;
+  border: 2px solid var(--amber);
+  color: var(--cream);
+  background: var(--ink);
+  transform: translateY(calc(-100% - 2rem));
+}
+.skip-link:focus-visible {
+  transform: none;
 }
 
 .gv-logo {
@@ -307,8 +324,8 @@ label {
   border-color: var(--gold);
 }
 
-#character-name:focus,
-#character-class:focus {
+#character-name:focus-visible,
+#character-class:focus-visible {
   border-color: var(--amber);
   box-shadow:
     inset 0 0 12px #000,
@@ -480,6 +497,7 @@ button,
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
   background: #160a07;
 }
 
@@ -580,7 +598,8 @@ input::-webkit-inner-spin-button {
     var(--gold) 0 12px,
     #b8321d 12px 14px
   );
-  transition: width 0.2s;
+  transform-origin: left;
+  transition: transform 0.2s;
 }
 
 .summary {

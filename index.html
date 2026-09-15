@@ -3,17 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050303">
   <meta name="description" content="Build balanced Golden Valley characters with the official 25-point stat budget.">
   <title>Golden Valley Character Calculator</title>
   <link rel="icon" type="image/png" href="GV%20Assets/logo_icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <p class="wip-bar">This is a WIP</p>
-  <main>
+  <main id="main-content" tabindex="-1">
     <header>
-      <h1 class="sr-only">Golden Valley</h1>
-      <img class="gv-logo" src="GV%20Assets/logo_small.png" alt="" aria-hidden="true">
+      <h1 class="sr-only" translate="no">Golden Valley</h1>
+      <img class="gv-logo" src="GV%20Assets/logo_small.png" alt="" aria-hidden="true" width="1232" height="384" fetchpriority="high">
       <p id="builder-intro">Create a new soul for the Valley. Spend exactly 25 points across five stats, with at least 1 point in each.</p>
     </header>
 
@@ -26,10 +30,10 @@
 
         <div class="calculator">
           <label for="character-name">Character name</label>
-          <input id="character-name" maxlength="32" placeholder="The Wanderer" autocomplete="off">
+          <input id="character-name" name="character-name" maxlength="32" placeholder="The Wanderer…" autocomplete="off">
 
           <label for="character-class">Class</label>
-          <select id="character-class">
+          <select id="character-class" name="character-class" autocomplete="off">
             <option value="">Choose a class</option>
             <option>Fighter</option>
             <option>Healer</option>
@@ -64,41 +68,41 @@
       <aside class="panel" aria-labelledby="rules-title">
         <div class="panel-title"><h2 id="rules-title">Field guide</h2></div>
         <div class="rules">
-          <div class="character-card" aria-label="Character preview">
+          <div class="character-card" role="group" aria-label="Character preview">
             <div class="portrait">
               <span class="card-backdrop" aria-hidden="true"></span>
-              <img class="missingno-sprite" id="missingno-sprite" src="GV%20Assets/missingno.png" alt="" aria-hidden="true">
+              <img class="missingno-sprite" id="missingno-sprite" src="GV%20Assets/missingno.png" alt="" aria-hidden="true" width="26" height="58" loading="lazy">
               <span id="initial" hidden></span>
-              <img class="card-layer" src="GV%20Assets/card_base.png" alt="">
-              <img class="card-layer" id="preview-class-art" src="GV%20Assets/card_class_fighter.png" alt="" hidden>
-              <img class="card-layer" src="GV%20Assets/card_class_overlay.png" alt="">
-              <img class="card-layer" id="preview-soul" alt="" hidden>
-              <img class="card-layer" src="GV%20Assets/card_bars_4_TP.png" alt="">
+              <img class="card-layer" src="GV%20Assets/card_base.png" alt="" aria-hidden="true" width="110" height="110" loading="lazy">
+              <img class="card-layer" id="preview-class-art" src="GV%20Assets/card_class_fighter.png" alt="" aria-hidden="true" width="110" height="110" loading="lazy" hidden>
+              <img class="card-layer" src="GV%20Assets/card_class_overlay.png" alt="" aria-hidden="true" width="110" height="110" loading="lazy">
+              <img class="card-layer" id="preview-soul" alt="" width="110" height="110" loading="lazy" hidden>
+              <img class="card-layer" src="GV%20Assets/card_bars_4_TP.png" alt="" aria-hidden="true" width="110" height="110" loading="lazy">
               <span class="card-hp" id="card-hp"></span>
-              <img class="card-hp-fill" src="GV%20Assets/HP_bar_full.png" alt="">
+              <img class="card-hp-fill" src="GV%20Assets/HP_bar_full.png" alt="" aria-hidden="true" width="47" height="6" loading="lazy">
               <span class="card-tp-fills" aria-hidden="true">
-                <img src="GV%20Assets/TP_bar_full.png" alt="">
-                <img src="GV%20Assets/TP_bar_full.png" alt="">
-                <img src="GV%20Assets/TP_bar_full.png" alt="">
-                <img src="GV%20Assets/TP_bar_full.png" alt="">
+                <img src="GV%20Assets/TP_bar_full.png" alt="" width="11" height="6" loading="lazy">
+                <img src="GV%20Assets/TP_bar_full.png" alt="" width="11" height="6" loading="lazy">
+                <img src="GV%20Assets/TP_bar_full.png" alt="" width="11" height="6" loading="lazy">
+                <img src="GV%20Assets/TP_bar_full.png" alt="" width="11" height="6" loading="lazy">
               </span>
-              <img class="card-level" src="GV%20Assets/LV_1.png" alt="">
+              <img class="card-level" src="GV%20Assets/LV_1.png" alt="" aria-hidden="true" width="5" height="7" loading="lazy">
             </div>
             <div>
               <small id="preview-class">Choose a class</small>
               <h3 id="preview-name" class="unnamed">Unnamed character</h3>
               <div class="mini-stats" id="mini-stats"></div>
-              <div class="action-preview" id="action-preview" aria-label="Class actions"></div>
+              <div class="action-preview" id="action-preview" role="group" aria-label="Class actions"></div>
             </div>
           </div>
-          <button type="button" class="download-card primary" id="download-card" disabled title="Enter a character name to download">Download card as PNG</button>
+          <button type="button" class="download-card primary" id="download-card" aria-live="polite" disabled title="Enter a character name to download">Download card as PNG</button>
           <p>Each point shapes how the character performs in Golden Valley.</p>
           <div class="rule-list" id="rule-list"></div>
         </div>
       </aside>
     </div>
   </main>
-  <footer>UNDERTALE and DELTARUNE © Toby Fox. Assets by picklez_sam.</footer>
+  <footer><span translate="no">UNDERTALE</span> and <span translate="no">DELTARUNE</span> © Toby Fox. Assets by picklez_sam.</footer>
 
   <script>
     const STAT_TOTAL = 25;
@@ -170,8 +174,7 @@
       return element;
     };
     const crtCursor = makeElement("img", "crt-cursor");
-    crtCursor.alt = "";
-    crtCursor.hidden = true;
+    Object.assign(crtCursor, { alt: "", width: 30, height: 30, hidden: true });
     document.body.append(crtCursor);
     const actionAssets = actions => actions.flatMap(action => {
       if (action === "SKILL / SPELL") return [["skill", "SKILL"], ["spell", "SPELL"]];
@@ -349,10 +352,9 @@
         const option = makeElement("label", "soul-option");
         const input = makeElement("input");
         const image = makeElement("img");
-        Object.assign(input, { type: "radio", name: "soul", value: id });
+        Object.assign(input, { type: "radio", name: "soul", value: id, autocomplete: "off" });
         input.dataset.variant = variant;
-        image.src = `GV Assets/soul_${variant}_${id}.png`;
-        image.alt = "";
+        Object.assign(image, { src: `GV Assets/soul_${variant}_${id}.png`, alt: "", width: 60, height: 60, loading: "lazy" });
         option.append(input, image, makeElement("span", "", variant === "H" ? "Human" : "Monster"));
         pair.append(option);
       });
@@ -362,8 +364,8 @@
     definitions.forEach(([code, name, description], index) => {
       const row = makeElement("div", "stat-row");
       const icon = makeElement("img", "stat-icon");
-      icon.src = `GV Assets/icon_${code}.png`;
-      icon.alt = "";
+      Object.assign(icon, { src: `GV Assets/icon_${code}.png`, alt: "", width: 30, height: 30 });
+      icon.setAttribute("aria-hidden", "true");
       const label = makeElement("div");
       label.append(makeElement("div", "stat-code", code), makeElement("div", "stat-name", name));
 
@@ -374,7 +376,7 @@
       const inputGlyphs = makeElement("span", "number-input-glyphs");
       const increase = makeElement("button");
       Object.assign(decrease, { type: "button", ariaLabel: `Decrease ${name}` });
-      Object.assign(input, { type: "number", inputMode: "numeric", min: 1, max: 21, value: 5, ariaLabel: `${name} points` });
+      Object.assign(input, { type: "number", name: code.toLowerCase(), autocomplete: "off", inputMode: "numeric", min: 1, max: 21, value: 5, ariaLabel: `${name} points` });
       Object.assign(increase, { type: "button", ariaLabel: `Increase ${name}` });
       decrease.dataset.index = increase.dataset.index = input.dataset.input = index;
       decrease.dataset.step = -1;
@@ -413,7 +415,7 @@
       renderGlyphText(document.querySelector("#remaining"), left ? pointsLeft : "All points assigned");
       document.querySelector("#status").textContent = status;
       document.querySelector("#status").classList.toggle("ready", valid);
-      document.querySelector("#meter-fill").style.width = `${total / STAT_TOTAL * 100}%`;
+      document.querySelector("#meter-fill").style.transform = `scaleX(${total / STAT_TOTAL})`;
       document.querySelector(".meter").setAttribute("aria-valuenow", total);
       renderGlyphText(
         document.querySelector("#class-bonus"),
@@ -429,8 +431,7 @@
         const icon = makeElement("span", "action-icon");
         const images = [1, 2].map(variant => {
           const image = makeElement("img");
-          image.src = `GV Assets/act_${asset}_${variant}.png`;
-          image.alt = "";
+          Object.assign(image, { src: `GV Assets/act_${asset}_${variant}.png`, alt: "", width: 80, height: 80 });
           return image;
         });
         icon.setAttribute("role", "img");
@@ -547,6 +548,7 @@
       const button = event.currentTarget;
       const label = button.textContent;
       button.disabled = true;
+      button.setAttribute("aria-busy", "true");
       button.textContent = "Preparing PNG…";
       try {
         await downloadCard();
@@ -555,11 +557,13 @@
         console.error(error);
         button.textContent = "Download failed — retry";
       } finally {
+        button.removeAttribute("aria-busy");
         button.disabled = !document.querySelector("#character-name").value.trim();
       }
     });
 
     document.querySelector("#reset").addEventListener("click", () => {
+      if (!confirm("Reset this build?")) return;
       stats = definitions.map(() => 5);
       selectedSoul = "";
       selectedVariant = "";
