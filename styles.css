@@ -720,6 +720,79 @@ input::-webkit-inner-spin-button {
   background: linear-gradient(#004848 0 16%, #007f7f 16% 74%, #005252 74%);
 }
 
+.portrait:has(.missingno-sprite:not([hidden])) .card-backdrop {
+  background-color: #fff;
+  background-image:
+    linear-gradient(
+      30deg,
+      #d8d8d8 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #d8d8d8 87.5%
+    ),
+    linear-gradient(
+      150deg,
+      #d8d8d8 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #d8d8d8 87.5%
+    ),
+    linear-gradient(
+      30deg,
+      #d8d8d8 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #d8d8d8 87.5%
+    ),
+    linear-gradient(
+      150deg,
+      #d8d8d8 12%,
+      transparent 12.5%,
+      transparent 87%,
+      #d8d8d8 87.5%
+    ),
+    linear-gradient(
+      60deg,
+      #eee 25%,
+      transparent 25.5%,
+      transparent 75%,
+      #eee 75%
+    ),
+    linear-gradient(
+      60deg,
+      #eee 25%,
+      transparent 25.5%,
+      transparent 75%,
+      #eee 75%
+    );
+  background-position:
+    0 0,
+    0 0,
+    16px 28px,
+    16px 28px,
+    0 0,
+    16px 28px;
+  background-size: 32px 56px;
+}
+
+@keyframes missingno-cubes-stroll {
+  to {
+    background-position:
+      32px 56px,
+      32px 56px,
+      48px 84px,
+      48px 84px,
+      32px 56px,
+      48px 84px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .portrait:has(.missingno-sprite:not([hidden])) .card-backdrop {
+    animation: missingno-cubes-stroll 2s linear infinite;
+  }
+}
+
 #initial {
   position: relative;
   z-index: 1;
@@ -730,6 +803,7 @@ input::-webkit-inner-spin-button {
   position: relative;
   z-index: 1;
   width: 24%;
+  height: auto;
   image-rendering: pixelated;
 }
 .missingno-sprite[hidden] {
